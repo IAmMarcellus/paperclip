@@ -1,7 +1,7 @@
 /**
- * Screen — shared scaffold: the Aurora ambient background + a scroll view with
- * consistent insets + an optional large header (greeting/title + right slot).
- * Every tab/stack screen wraps its content in this.
+ * Screen — shared scaffold: a scroll view with consistent insets + an optional
+ * large header (greeting/title + right slot). The ambient Aurora background is
+ * rendered once at the root layout and shows through this transparent scaffold.
  */
 import { type ReactNode } from "react";
 import {
@@ -15,7 +15,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AuroraBackground } from "@/components/aurora/AuroraBackground";
 import { colors, spacing, text } from "@/theme";
 
 export interface ScreenProps {
@@ -26,8 +25,6 @@ export interface ScreenProps {
   eyebrow?: string;
   /** Right-aligned header accessory (icon buttons, avatar). */
   headerRight?: ReactNode;
-  /** Show the ambient aurora background. Default true. */
-  background?: boolean;
   scroll?: boolean;
   onRefresh?: () => void;
   refreshing?: boolean;
@@ -41,7 +38,6 @@ export function Screen({
   title,
   eyebrow,
   headerRight,
-  background = true,
   scroll = true,
   onRefresh,
   refreshing = false,
@@ -69,7 +65,6 @@ export function Screen({
 
   return (
     <View style={styles.root}>
-      {background ? <AuroraBackground /> : null}
       {scroll ? (
         <ScrollView
           contentContainerStyle={[padding, contentStyle]}
@@ -98,7 +93,7 @@ export function Screen({
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.background },
+  root: { flex: 1 },
   flex: { flex: 1 },
   header: {
     flexDirection: "row",

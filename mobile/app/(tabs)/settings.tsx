@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Check } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { Screen } from "@/components/Screen";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ListRow } from "@/components/ui/ListRow";
+import { RowsCard } from "@/components/ui/RowsCard";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { Separator } from "@/components/ui/Separator";
 import { api } from "@/lib/api";
 import { useConnection } from "@/lib/connection";
 import { colors, spacing, text } from "@/theme";
@@ -43,7 +45,7 @@ export default function SettingsScreen() {
         <SectionLabel>Connection</SectionLabel>
         <GlassCard padding={16}>
           <Row label="Server" value={baseUrl} />
-          <View style={styles.sep} />
+          <Separator style={styles.sep} />
           <Row label="Status" value="Connected" tint={colors.emerald} />
         </GlassCard>
       </View>
@@ -51,24 +53,21 @@ export default function SettingsScreen() {
       {(companies.data?.length ?? 0) > 1 ? (
         <View style={styles.block}>
           <SectionLabel>Company</SectionLabel>
-          <GlassCard padding={4}>
-            <View style={{ paddingHorizontal: 12 }}>
-              {companies.data!.map((c, i) => (
-                <View key={c.id}>
-                  <ListRow
-                    chevron={false}
-                    onPress={() => setCompanyId(c.id)}
-                    trailing={c.id === companyId ? <Check size={18} color={colors.teal} /> : undefined}
-                  >
-                    <Text style={text.bodyMedium} numberOfLines={1}>
-                      {c.name}
-                    </Text>
-                  </ListRow>
-                  {i < companies.data!.length - 1 ? <View style={styles.divider} /> : null}
-                </View>
-              ))}
-            </View>
-          </GlassCard>
+          <RowsCard
+            items={companies.data!}
+            keyExtractor={(c) => c.id}
+            renderRow={(c) => (
+              <ListRow
+                chevron={false}
+                onPress={() => setCompanyId(c.id)}
+                trailing={c.id === companyId ? <Check size={18} color={colors.teal} /> : undefined}
+              >
+                <Text style={text.bodyMedium} numberOfLines={1}>
+                  {c.name}
+                </Text>
+              </ListRow>
+            )}
+          />
         </View>
       ) : null}
 
@@ -94,6 +93,5 @@ const styles = StyleSheet.create({
   account: { flexDirection: "row", alignItems: "center", gap: spacing[3] },
   block: { marginTop: spacing[6] },
   row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingVertical: 6 },
-  sep: { height: StyleSheet.hairlineWidth, backgroundColor: colors.white05, marginVertical: 6 },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.white05 },
+  sep: { marginVertical: 6 },
 });

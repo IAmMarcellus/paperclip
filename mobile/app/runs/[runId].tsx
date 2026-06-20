@@ -1,13 +1,14 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
 import { useMemo } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AuroraBackground } from "@/components/aurora/AuroraBackground";
 import { RunStatusBadge } from "@/components/aurora/StatusBadge";
+import { StickyFooter } from "@/components/StickyFooter";
 import { Button } from "@/components/ui/Button";
 import { GlassSurface } from "@/components/ui/GlassSurface";
+import { IconButton } from "@/components/ui/IconButton";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { isTerminal, useCancelRun, useRun, useRunEvents } from "@/hooks";
 import { relativeTime } from "@/lib/format";
@@ -27,7 +28,7 @@ export default function RunScreen() {
   const insets = useSafeAreaInsets();
 
   const runQ = useRun(id);
-  const live = !isTerminal(runQ.data?.status);
+  const live = useMemo(() => !isTerminal(runQ.data?.status), [runQ.data?.status]);
   const eventsQ = useRunEvents(id, live);
   const cancel = useCancelRun(id);
 
@@ -38,12 +39,10 @@ export default function RunScreen() {
 
   return (
     <View style={styles.root}>
-      <AuroraBackground />
-
       <View style={[styles.nav, { paddingTop: insets.top + 4 }]}>
-        <Pressable onPress={() => router.back()} style={styles.iconBtn}>
+        <IconButton onPress={() => router.back()}>
           <ChevronLeft size={20} color={colors.foregroundSoft} />
-        </Pressable>
+        </IconButton>
         <View style={styles.navTitle}>
           <Text style={text.title}>Run {id.slice(0, 8)}</Text>
           {runQ.data ? (
@@ -81,7 +80,7 @@ export default function RunScreen() {
       </ScrollView>
 
       {live ? (
-        <View style={[styles.footer, { paddingBottom: insets.bottom + 10 }]}>
+        <StickyFooter>
           <Button
             label="Cancel run"
             variant="destructive"
@@ -90,14 +89,14 @@ export default function RunScreen() {
             loading={cancel.isPending}
             onPress={() => cancel.mutate()}
           />
-        </View>
+        </StickyFooter>
       ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.background },
+  root: { flex: 1 },
   nav: {
     flexDirection: "row",
     alignItems: "center",
@@ -106,15 +105,6 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   navTitle: { flex: 1 },
-  iconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
-    borderWidth: 1,
-    borderColor: colors.white10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   console: { padding: 14, minHeight: 220 },
   line: {
     fontFamily: fontFamily.mono,
@@ -123,11 +113,4 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   empty: { color: colors.dimForeground, textAlign: "center", paddingVertical: 40 },
-  footer: {
-    position: "absolute",
-    left: spacing[5],
-    right: spacing[5],
-    bottom: 0,
-    paddingTop: 10,
-  },
 });

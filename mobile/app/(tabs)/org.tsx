@@ -9,7 +9,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { ListRow } from "@/components/ui/ListRow";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { useAgents, useOrg } from "@/hooks";
+import { agentWorkSummary, useAgents, useOrg } from "@/hooks";
 import { useConnection } from "@/lib/connection";
 import { humanize } from "@/lib/format";
 import type { OrgNode } from "@/lib/api/types";
@@ -33,7 +33,7 @@ function OrgRow({ node, level }: { node: OrgNode; level: number }) {
     <View>
       <View style={[styles.rowWrap, { marginLeft: level * 16 }]}>
         {level > 0 ? <View style={styles.connector} /> : null}
-        <GlassCard padding={4} radius={14} style={styles.nodeCard}>
+        <GlassCard padding={4} radius={14}>
           <View style={styles.nodePad}>
             <ListRow
               onPress={() => router.push(`/agents/${node.id}`)}
@@ -64,12 +64,7 @@ export default function OrgScreen() {
   const tree = org.data ?? [];
 
   const meta = useMemo(() => walk(tree), [tree]);
-  const objective = useMemo(() => {
-    const all = agents.data ?? [];
-    const working = all.filter((a) => a.status === "running" || a.status === "active").length;
-    const ratio = all.length ? working / all.length : 0;
-    return { ratio, value: `${Math.round(ratio * 100)}%`, context: `${working} of ${all.length} agents active` };
-  }, [agents.data]);
+  const objective = useMemo(() => agentWorkSummary(agents.data), [agents.data]);
 
   return (
     <Screen
@@ -115,6 +110,5 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: colors.white10,
   },
-  nodeCard: {},
   nodePad: { paddingHorizontal: 12 },
 });

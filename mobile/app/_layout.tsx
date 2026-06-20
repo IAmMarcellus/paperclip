@@ -8,6 +8,9 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { View } from "react-native";
+
+import { AuroraBackground } from "@/components/aurora/AuroraBackground";
 import { ConnectionProvider } from "@/lib/connection";
 import { queryClient } from "@/lib/query";
 import { colors, useAuroraFonts } from "@/theme";
@@ -29,19 +32,25 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <ConnectionProvider>
             <StatusBar style="light" />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: colors.background },
-                animation: "fade",
-              }}
-            >
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="agents/[agentId]" />
-              <Stack.Screen name="runs/[runId]" />
-              <Stack.Screen name="connect" options={{ presentation: "modal" }} />
-              <Stack.Screen name="index" />
-            </Stack>
+            {/* Single ambient Aurora canvas behind the whole app — screens render
+                on transparent backgrounds so it shows through (and only one set of
+                orb animations runs, not one per mounted screen). */}
+            <View style={{ flex: 1, backgroundColor: colors.background }}>
+              <AuroraBackground />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: "transparent" },
+                  animation: "fade",
+                }}
+              >
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="agents/[agentId]" />
+                <Stack.Screen name="runs/[runId]" />
+                <Stack.Screen name="connect" options={{ presentation: "modal" }} />
+                <Stack.Screen name="index" />
+              </Stack>
+            </View>
           </ConnectionProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

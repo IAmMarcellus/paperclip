@@ -10,7 +10,7 @@ import { Screen } from "@/components/Screen";
 import { Avatar } from "@/components/ui/Avatar";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { useActivity, useAgents, useLiveRuns } from "@/hooks";
+import { agentWorkSummary, useActivity, useAgents, useLiveRuns } from "@/hooks";
 import { useConnection } from "@/lib/connection";
 import { greeting } from "@/lib/format";
 import { mapActivity } from "@/lib/ui-map";
@@ -27,15 +27,7 @@ export default function HomeScreen() {
     () => (agents.data ?? []).filter((a) => a.status === "running" || a.status === "active"),
     [agents.data],
   );
-  const objective = useMemo(() => {
-    const all = agents.data ?? [];
-    const ratio = all.length ? working.length / all.length : 0;
-    return {
-      ratio,
-      value: `${Math.round(ratio * 100)}%`,
-      context: `${working.length} of ${all.length} agents active`,
-    };
-  }, [agents.data, working.length]);
+  const objective = useMemo(() => agentWorkSummary(agents.data), [agents.data]);
 
   const feed = useMemo(() => mapActivity(activity.data).slice(0, 6), [activity.data]);
 

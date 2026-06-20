@@ -2,6 +2,7 @@
  * ActivityFeed — a glass card containing a list of recent events, each a dot +
  * agent/action text + timestamp. Used on Home (recent) and Activity (stream).
  */
+import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -42,10 +43,10 @@ export function ActivityRow({ item, index = 0 }: { item: ActivityItem; index?: n
   );
 }
 
-export function ActivityFeed({ items }: { items: ActivityItem[] }) {
+export const ActivityFeed = memo(function ActivityFeed({ items }: { items: ActivityItem[] }) {
   return (
     <GlassCard padding={4}>
-      <View style={{ paddingHorizontal: 12 }}>
+      <View style={styles.list}>
         {items.map((item, i) => (
           <View key={item.id}>
             <ActivityRow item={item} index={i} />
@@ -53,14 +54,16 @@ export function ActivityFeed({ items }: { items: ActivityItem[] }) {
           </View>
         ))}
         {items.length === 0 ? (
-          <Text style={[text.small, { paddingVertical: 18, textAlign: "center" }]}>No recent activity.</Text>
+          <Text style={[text.small, styles.empty]}>No recent activity.</Text>
         ) : null}
       </View>
     </GlassCard>
   );
-}
+});
 
 const styles = StyleSheet.create({
+  list: { paddingHorizontal: 12 },
+  empty: { paddingVertical: 18, textAlign: "center" },
   row: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 12 },
   dot: { width: 7, height: 7, borderRadius: radii.pill, marginTop: 2 },
   body: { flex: 1, minWidth: 0 },

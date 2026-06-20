@@ -5,8 +5,8 @@ import { StyleSheet, Text, View } from "react-native";
 import { MiniCapsule } from "@/components/aurora/AgentCapsule";
 import { AgentStatusBadge } from "@/components/aurora/StatusBadge";
 import { Screen } from "@/components/Screen";
-import { GlassCard } from "@/components/ui/GlassCard";
 import { ListRow } from "@/components/ui/ListRow";
+import { RowsCard } from "@/components/ui/RowsCard";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatGrid } from "@/components/aurora/StatGrid";
@@ -52,27 +52,24 @@ export default function AgentsScreen() {
         ) : list.length === 0 ? (
           <Text style={text.small}>No agents yet.</Text>
         ) : (
-          <GlassCard padding={4} radius={20}>
-            <View style={styles.listPad}>
-              {list.map((a, i) => (
-                <View key={a.id}>
-                  <ListRow
-                    onPress={() => router.push(`/agents/${a.id}`)}
-                    leading={<MiniCapsule agent={a} status={a.status} height={34} />}
-                    trailing={<AgentStatusBadge status={a.status} />}
-                  >
-                    <Text style={text.title} numberOfLines={1}>
-                      {a.name}
-                    </Text>
-                    <Text style={text.small} numberOfLines={1}>
-                      {a.title ?? humanize(a.role)}
-                    </Text>
-                  </ListRow>
-                  {i < list.length - 1 ? <View style={styles.divider} /> : null}
-                </View>
-              ))}
-            </View>
-          </GlassCard>
+          <RowsCard
+            items={list}
+            keyExtractor={(a) => a.id}
+            renderRow={(a) => (
+              <ListRow
+                onPress={() => router.push(`/agents/${a.id}`)}
+                leading={<MiniCapsule agent={a} status={a.status} height={34} />}
+                trailing={<AgentStatusBadge status={a.status} />}
+              >
+                <Text style={text.title} numberOfLines={1}>
+                  {a.name}
+                </Text>
+                <Text style={text.small} numberOfLines={1}>
+                  {a.title ?? humanize(a.role)}
+                </Text>
+              </ListRow>
+            )}
+          />
         )}
       </View>
     </Screen>
@@ -81,6 +78,4 @@ export default function AgentsScreen() {
 
 const styles = StyleSheet.create({
   block: { marginTop: spacing[5] },
-  listPad: { paddingHorizontal: 12 },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.white05 },
 });

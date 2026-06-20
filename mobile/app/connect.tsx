@@ -43,7 +43,7 @@ export default function ConnectScreen() {
   };
 
   return (
-    <Screen background scroll={false} bottomInset={spacing[6]}>
+    <Screen scroll={false} bottomInset={spacing[6]}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}

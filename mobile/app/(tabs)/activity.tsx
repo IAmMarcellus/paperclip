@@ -63,7 +63,7 @@ export default function ActivityScreen() {
           ) : pending.length === 0 ? (
             <Text style={text.small}>Nothing waiting on you. 🎉</Text>
           ) : (
-            <View style={{ gap: spacing[3] }}>
+            <View style={styles.approvalList}>
               {pending.map((a) => (
                 <ApprovalCard
                   key={a.id}
@@ -96,4 +96,5 @@ export default function ActivityScreen() {
 
 const styles = StyleSheet.create({
   block: { marginTop: spacing[5] },
+  approvalList: { gap: spacing[3] },
 });

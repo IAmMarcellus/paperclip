@@ -3,7 +3,6 @@
  * Used in list rows, agent headers, activity feed.
  */
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
 import Animated, {
   cancelAnimation,
   Easing,
@@ -48,7 +47,6 @@ export function StatusDot({ color, size = 8, pulse = false, glow = true }: Statu
   return (
     <Animated.View
       style={[
-        styles.dot,
         {
           width: size,
           height: size,
@@ -65,7 +63,3 @@ export function StatusDot({ color, size = 8, pulse = false, glow = true }: Statu
     />
   );
 }
-
-const styles = StyleSheet.create({
-  dot: {},
-});

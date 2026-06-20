@@ -62,7 +62,8 @@ export function AgentCapsule({
       <View
         style={[
           styles.capsule,
-          { width, height, borderRadius: radii.pill, borderWidth: 1.5, borderColor: "rgba(255,255,255,0.22)", borderStyle: "dashed" },
+          styles.idle,
+          { width, height, borderRadius: radii.pill },
           style,
         ]}
       />
@@ -107,6 +108,7 @@ export function AgentCapsule({
 
 const styles = StyleSheet.create({
   capsule: { overflow: "visible", position: "relative" },
+  idle: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.22)", borderStyle: "dashed" },
   shine: {
     position: "absolute",
     top: 5,

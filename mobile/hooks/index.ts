@@ -38,6 +38,22 @@ export function isTerminal(status?: string | null): boolean {
   return !!status && TERMINAL.has(status);
 }
 
+/** Active-ratio summary used by the Home + Org objective cards. */
+export function agentWorkSummary(agents: Agent[] | undefined): {
+  ratio: number;
+  value: string;
+  context: string;
+} {
+  const all = agents ?? [];
+  const working = all.filter((a) => a.status === "running" || a.status === "active").length;
+  const ratio = all.length ? working / all.length : 0;
+  return {
+    ratio,
+    value: `${Math.round(ratio * 100)}%`,
+    context: `${working} of ${all.length} agents active`,
+  };
+}
+
 // --- lists ----------------------------------------------------------------
 
 export function useAgents(companyId: string): UseQueryResult<Agent[]> {
