@@ -3,7 +3,7 @@ import { Plus } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { IssueRow, issueRef } from "@/components/aurora/IssueRow";
+import { IssueRow } from "@/components/aurora/IssueRow";
 import { IssueStatusBadge } from "@/components/aurora/StatusBadge";
 import { PriorityIcon } from "@/components/aurora/PriorityIcon";
 import { Screen } from "@/components/Screen";
