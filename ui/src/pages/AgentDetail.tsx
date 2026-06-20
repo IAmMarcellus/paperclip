@@ -80,6 +80,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { AgentIcon, AgentIconPicker } from "../components/AgentIconPicker";
 import { RunTranscriptView, type TranscriptMode } from "../components/transcript/RunTranscriptView";
+import { AgentCapsule } from "@/components/AgentCapsule";
+import { SectionLabel } from "@/components/aurora";
+import { Badge } from "@/components/ui/badge";
+import { agentGradientIndex } from "@/lib/agent-colors";
 import {
   isUuidLike,
   type Agent,
@@ -116,6 +120,29 @@ const runStatusIcons: Record<string, { icon: typeof CheckCircle2; color: string 
   timed_out: { icon: Timer, color: "text-orange-600 dark:text-orange-400" },
   cancelled: { icon: Slash, color: "text-neutral-500 dark:text-neutral-400" },
 };
+
+/** Map an agent lifecycle status to an Aurora status pill (label + Badge tone). */
+function agentStatusPill(status: string): {
+  label: string;
+  variant: "default" | "secondary" | "destructive" | "outline";
+} {
+  switch (status) {
+    case "running":
+    case "active":
+      return { label: "Working", variant: "default" };
+    case "error":
+      return { label: "Error", variant: "destructive" };
+    case "paused":
+    case "idle":
+      return { label: "Paused", variant: "secondary" };
+    case "pending_approval":
+      return { label: "Pending", variant: "outline" };
+    case "terminated":
+      return { label: "Terminated", variant: "secondary" };
+    default:
+      return { label: status, variant: "secondary" };
+  }
+}
 
 const RUN_LOG_PAGE_BYTES = 256_000;
 
@@ -986,48 +1013,104 @@ export function AgentDetail() {
           </div>
         </div>
       ) : null}
-      {/* Header */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3 min-w-0">
-          <AgentIconPicker
-            value={agent.icon}
-            onChange={(icon) => updateIcon.mutate(icon)}
-          >
-            <button className="shrink-0 flex items-center justify-center h-12 w-12 rounded-lg bg-accent hover:bg-accent/80 transition-colors">
-              <AgentIcon icon={agent.icon} className="h-6 w-6" />
-            </button>
-          </AgentIconPicker>
-          <div className="min-w-0">
-            <h2 className="text-2xl font-bold truncate">{agent.name}</h2>
-            <p className="text-sm text-muted-foreground truncate">
-              {roleLabels[agent.role] ?? agent.role}
-              {agent.title ? ` - ${agent.title}` : ""}
-            </p>
-          </div>
-        </div>
-        <AgentActionButtons
-          agent={agent}
-          companyId={resolvedCompanyId}
-          assignLabel="Assign Task"
-          runLabel="Run Heartbeat"
-          actionsDisabled={agentAction.isPending}
-          workActionsDisabled={hasInvalidOrgChain}
-          workActionsDisabledReason="Repair this agent's reporting chain before assigning tasks or starting runs"
-          onActionError={setActionError}
-        >
-          {mobileLiveRun && (
-            <Link
-              to={`/agents/${canonicalAgentRef}/runs/${mobileLiveRun.id}`}
-              className="sm:hidden flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 hover:bg-blue-500/20 transition-colors no-underline"
+      {/* Hero header */}
+      <div className="glass rounded-xl px-5 py-5 sm:px-6">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex min-w-0 items-center gap-4 sm:gap-5">
+            <AgentIconPicker
+              value={agent.icon}
+              onChange={(icon) => updateIcon.mutate(icon)}
             >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-              </span>
-              <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400">Live</span>
-            </Link>
-          )}
-        </AgentActionButtons>
+              <button
+                className="shrink-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-teal/60"
+                aria-label="Change agent icon"
+              >
+                <AgentCapsule
+                  state="online"
+                  size="lg"
+                  gradient={agentGradientIndex(agent)}
+                  glow="green"
+                />
+              </button>
+            </AgentIconPicker>
+            <div className="min-w-0 space-y-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
+                  {agent.name}
+                </h2>
+                <Badge variant={agentStatusPill(agent.status).variant}>
+                  <span
+                    className={cn("status-dot-glow h-1.5 w-1.5 rounded-full bg-current", agent.status === "running" && "animate-pulse")}
+                  />
+                  {agentStatusPill(agent.status).label}
+                </Badge>
+              </div>
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+                <span className="text-foreground/70">{roleLabels[agent.role] ?? agent.role}</span>
+                <span className="text-muted-foreground/40">·</span>
+                <span>{adapterLabels[agent.adapterType] ?? agent.adapterType}</span>
+                {agent.createdAt ? (
+                  <>
+                    <span className="text-muted-foreground/40">·</span>
+                    <span>hired {relativeTime(agent.createdAt)}</span>
+                  </>
+                ) : null}
+              </p>
+              {/* Mono stat strip — values already in scope */}
+              <div className="flex flex-wrap items-center gap-x-7 gap-y-2 pt-1">
+                <div className="flex flex-col">
+                  <SectionLabel>Spend · MTD</SectionLabel>
+                  <span className="mt-0.5 text-lg font-semibold tabular-nums text-teal">
+                    {formatCents(agent.spentMonthlyCents)}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <SectionLabel>Tasks</SectionLabel>
+                  <span className="mt-0.5 text-lg font-semibold tabular-nums">
+                    {assignedIssues.length}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <SectionLabel>Reports</SectionLabel>
+                  <span className="mt-0.5 text-lg font-semibold tabular-nums">
+                    {directReports.length}
+                  </span>
+                </div>
+                {agent.lastHeartbeatAt ? (
+                  <div className="flex flex-col">
+                    <SectionLabel>Last active</SectionLabel>
+                    <span className="mt-0.5 font-mono text-sm text-foreground/80">
+                      {relativeTime(agent.lastHeartbeatAt)}
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+          <AgentActionButtons
+            agent={agent}
+            companyId={resolvedCompanyId}
+            assignLabel="Assign Task"
+            runLabel="Run Heartbeat"
+            actionsDisabled={agentAction.isPending}
+            workActionsDisabled={hasInvalidOrgChain}
+            workActionsDisabledReason="Repair this agent's reporting chain before assigning tasks or starting runs"
+            onActionError={setActionError}
+          >
+            {mobileLiveRun && (
+              <Link
+                to={`/agents/${canonicalAgentRef}/runs/${mobileLiveRun.id}`}
+                className="sm:hidden flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-teal/12 hover:bg-teal/20 transition-colors no-underline"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="status-dot-glow animate-pulse absolute inline-flex h-full w-full rounded-full bg-teal opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-teal" />
+                </span>
+                <span className="text-[11px] font-medium text-teal">Live</span>
+              </Link>
+            )}
+          </AgentActionButtons>
+        </div>
       </div>
 
       {!urlRunId && (

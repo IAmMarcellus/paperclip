@@ -97,10 +97,10 @@ export function SidebarNavItem({
       onClick={() => { if (isMobile) setSidebarOpen(false); }}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-2.5 px-3 py-2 pointer-coarse:py-1.5 text-[13px] font-medium transition-colors",
+          "flex items-center gap-2.5 rounded-lg px-3 py-2 pointer-coarse:py-1.5 text-[13px] font-medium transition-colors",
           isActive
-            ? "bg-accent text-foreground"
-            : "text-foreground/80 hover:bg-accent/50 hover:text-foreground",
+            ? "bg-teal/12 text-teal shadow-[inset_0_0_0_1px_var(--glass-border-accent)]"
+            : "text-foreground/75 hover:bg-white/[0.05] hover:text-foreground",
           className,
         )
       }

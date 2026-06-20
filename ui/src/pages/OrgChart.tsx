@@ -12,6 +12,7 @@ import { PageSkeleton } from "../components/PageSkeleton";
 import { AgentIcon } from "../components/AgentIconPicker";
 import { Download, Maximize2, Minus, Network, Plus, Upload } from "lucide-react";
 import { AGENT_ROLE_LABELS, type Agent } from "@paperclipai/shared";
+import { agentColorVar } from "@/lib/agent-colors";
 
 // Layout constants
 const CARD_W = 200;
@@ -540,8 +541,10 @@ export function OrgChart() {
                   key={`${parent.id}-${child.id}`}
                   d={`M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`}
                   fill="none"
-                  stroke="var(--border)"
+                  stroke="rgba(94, 234, 212, 0.35)"
                   strokeWidth={1.5}
+                  strokeDasharray="2 5"
+                  strokeLinecap="round"
                 />
               );
             })}
@@ -561,11 +564,13 @@ export function OrgChart() {
             const agent = agentMap.get(node.id);
             const dotColor = statusDotColor[node.status] ?? defaultDotColor;
 
+            const accentColor = agentColorVar(agent ?? node.id);
+
             return (
               <div
                 key={node.id}
                 data-org-card
-                className="absolute bg-card border border-border rounded-lg shadow-sm hover:shadow-md hover:border-foreground/20 transition-[box-shadow,border-color] duration-150 cursor-pointer select-none"
+                className="glass absolute overflow-hidden rounded-xl cursor-pointer select-none transition-[box-shadow,border-color] duration-150 hover:border-[var(--glass-border-accent)] hover:shadow-[var(--glow-teal)]"
                 style={{
                   left: node.x,
                   top: node.y,
@@ -580,32 +585,41 @@ export function OrgChart() {
                   e.stopPropagation();
                 }}
               >
-                <div className="flex items-center px-4 py-3 gap-3">
+                {/* Signature-colour left accent bar */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-0 left-0 w-1"
+                  style={{ backgroundColor: accentColor }}
+                />
+                <div className="flex items-center gap-3 px-4 py-3 pl-5">
                   {/* Agent icon + status dot */}
                   <div className="relative shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-                      <AgentIcon icon={agent?.icon} className="h-4.5 w-4.5 text-foreground/70" />
+                    <div
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10"
+                      style={{ backgroundColor: `color-mix(in oklab, ${accentColor} 22%, transparent)` }}
+                    >
+                      <AgentIcon icon={agent?.icon} className="h-4.5 w-4.5 text-foreground/80" />
                     </div>
                     <span
-                      className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card"
-                      style={{ backgroundColor: dotColor }}
+                      className="status-dot-glow absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card text-current"
+                      style={{ backgroundColor: dotColor, color: dotColor }}
                     />
                   </div>
                   {/* Name + role + adapter type */}
-                  <div className="flex flex-col items-start min-w-0 flex-1">
-                    <span className="text-sm font-semibold text-foreground leading-tight">
+                  <div className="flex min-w-0 flex-1 flex-col items-start">
+                    <span className="text-sm font-semibold leading-tight tracking-tight text-foreground">
                       {node.name}
                     </span>
-                    <span className="text-[11px] text-muted-foreground leading-tight mt-0.5">
+                    <span className="mt-0.5 text-[11px] leading-tight text-muted-foreground">
                       {agent?.title ?? roleLabel(node.role)}
                     </span>
                     {agent && (
-                      <span className="text-[10px] text-muted-foreground/60 font-mono leading-tight mt-1">
+                      <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] leading-tight text-muted-foreground/60">
                         {getAdapterLabel(agent.adapterType)}
                       </span>
                     )}
                     {agent && agent.capabilities && (
-                      <span className="text-[10px] text-muted-foreground/80 leading-tight mt-1 line-clamp-2">
+                      <span className="mt-1 line-clamp-2 text-[10px] leading-tight text-muted-foreground/80">
                         {agent.capabilities}
                       </span>
                     )}

@@ -32,7 +32,7 @@ export const ToggleSwitch = React.forwardRef<
           "disabled:cursor-not-allowed disabled:opacity-50",
           // Track: larger on mobile (<640px), standard on desktop
           isLg ? "h-7 w-12 sm:h-6 sm:w-11" : "h-6 w-10 sm:h-5 sm:w-9",
-          checked ? "bg-green-600" : "bg-muted",
+          checked ? "bg-teal shadow-[var(--glow-teal)]" : "bg-muted",
           className,
         )}
         onClick={() => onCheckedChange(!checked)}

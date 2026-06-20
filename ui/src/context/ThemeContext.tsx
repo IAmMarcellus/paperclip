@@ -1,13 +1,9 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
 
+// Aurora is a dark-only design. The light theme has been retired, but the
+// `useTheme()` API (theme / setTheme / toggleTheme) is kept so existing
+// consumers keep compiling — `setTheme`/`toggleTheme` are intentional no-ops
+// and `theme` is always "dark".
 type Theme = "light" | "dark";
 
 interface ThemeContextValue {
@@ -16,89 +12,31 @@ interface ThemeContextValue {
   toggleTheme: () => void;
 }
 
-const THEME_STORAGE_KEY = "paperclip.theme";
-const DARK_THEME_COLOR = "#18181b";
-const LIGHT_THEME_COLOR = "#ffffff";
+const DARK_THEME_COLOR = "#08080a";
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-function resolveThemeFromDocument(): Theme {
-  if (typeof document === "undefined") return "dark";
-  return document.documentElement.classList.contains("dark") ? "dark" : "light";
-}
-
-function hasStoredTheme(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-    return stored === "light" || stored === "dark";
-  } catch {
-    return false;
-  }
-}
-
-function applyTheme(theme: Theme) {
+function applyDark() {
   if (typeof document === "undefined") return;
-  const isDark = theme === "dark";
   const root = document.documentElement;
-  root.classList.toggle("dark", isDark);
-  root.style.colorScheme = isDark ? "dark" : "light";
+  root.classList.add("dark");
+  root.style.colorScheme = "dark";
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
   if (themeColorMeta instanceof HTMLMetaElement) {
-    themeColorMeta.setAttribute("content", isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
+    themeColorMeta.setAttribute("content", DARK_THEME_COLOR);
   }
 }
 
+const noop = () => {};
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => resolveThemeFromDocument());
-  // Track whether the user has explicitly chosen a theme. If false, the
-  // theme is being derived from the OS `prefers-color-scheme` and should
-  // follow OS-level changes mid-session without being persisted.
-  const [hasExplicitChoice, setHasExplicitChoice] = useState<boolean>(() => hasStoredTheme());
-
-  const setTheme = useCallback((nextTheme: Theme) => {
-    setHasExplicitChoice(true);
-    setThemeState(nextTheme);
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    setHasExplicitChoice(true);
-    setThemeState((current) => (current === "dark" ? "light" : "dark"));
-  }, []);
-
+  // Force dark on mount (the inline bootstrap in index.html already set it
+  // before first paint; this re-asserts it after hydration).
   useEffect(() => {
-    applyTheme(theme);
-    if (!hasExplicitChoice) return;
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {
-      // Ignore local storage write failures in restricted environments.
-    }
-  }, [theme, hasExplicitChoice]);
-
-  // When the user has not made an explicit choice, follow OS-level
-  // `prefers-color-scheme` changes so the UI flips alongside the OS theme.
-  useEffect(() => {
-    if (hasExplicitChoice) return;
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = (event: MediaQueryListEvent) => {
-      setThemeState(event.matches ? "dark" : "light");
-    };
-    media.addEventListener("change", handleChange);
-    return () => media.removeEventListener("change", handleChange);
-  }, [hasExplicitChoice]);
-
-  const value = useMemo(
-    () => ({
-      theme,
-      setTheme,
-      toggleTheme,
-    }),
-    [theme, setTheme, toggleTheme],
-  );
+    applyDark();
+  }, []);
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={{ theme: "dark", setTheme: noop, toggleTheme: noop }}>
       {children}
     </ThemeContext.Provider>
   );

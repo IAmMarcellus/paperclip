@@ -6,7 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Cpu, Plus, Power, Trash2, FolderOpen, Package, RefreshCw, Download } from "lucide-react";
+import { AlertTriangle, Cpu, Plus, Trash2, FolderOpen, Package, RefreshCw, Download } from "lucide-react";
 import { useCompany } from "@/context/CompanyContext";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { adaptersApi } from "@/api/adapters";
@@ -16,8 +16,8 @@ import { queryKeys } from "@/lib/queryKeys";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { ToggleSwitch } from "@/components/ui/toggle-switch";
+import { SectionLabel } from "@/components/aurora";
 import {
   Dialog,
   DialogContent,
@@ -66,49 +66,75 @@ function AdapterRow({
   toggleTitleDisabled?: string;
   disabledBadgeLabel?: string;
 }) {
+  const name = adapter.label || getAdapterLabel(adapter.type);
+  const initial = (name.trim()[0] ?? "?").toUpperCase();
+  const sourceLabel = adapter.source === "external" ? "external" : "built-in";
+  // Provider/source sublabel: prefer the package source, fall back to the type.
+  const sublabel = adapter.packageName && adapter.packageName !== adapter.type
+    ? adapter.packageName
+    : adapter.type;
+
   return (
-    <li>
+    <li className="glass rounded-xl">
       <div className="flex items-center gap-4 px-4 py-3">
+        {/* Square mono-initial avatar */}
+        <div
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] font-mono text-base font-medium",
+            adapter.disabled ? "text-muted-foreground" : "text-foreground",
+          )}
+        >
+          {initial}
+        </div>
+
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={cn("font-medium", adapter.disabled && "text-muted-foreground line-through")}>
-              {adapter.label || getAdapterLabel(adapter.type)}
+            <span className={cn("font-medium", adapter.disabled && "text-muted-foreground")}>
+              {name}
             </span>
-            <Badge variant="outline">{adapter.source === "external" ? "External" : "Built-in"}</Badge>
             {adapter.source === "external" && (
               adapter.isLocalPath
-                ? <span title="Installed from local path"><FolderOpen className="h-4 w-4 text-amber-500" /></span>
-                : <span title="Installed from npm"><Package className="h-4 w-4 text-red-500" /></span>
+                ? <span title="Installed from local path"><FolderOpen className="h-3.5 w-3.5 text-muted-foreground" /></span>
+                : <span title="Installed from npm"><Package className="h-3.5 w-3.5 text-muted-foreground" /></span>
             )}
             {adapter.version && (
-              <Badge variant="secondary" className="font-mono text-[10px]">
+              <span className="pill border border-white/10 bg-white/[0.03] px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
                 v{adapter.version}
-              </Badge>
+              </span>
             )}
             {adapter.overriddenBuiltin && (
-              <Badge variant="secondary" className="text-blue-600 border-blue-400">
-                Overrides built-in
-              </Badge>
+              <span className="pill border border-teal/25 bg-teal/12 px-2 py-0.5 font-mono text-[10px] text-teal">
+                overrides built-in
+              </span>
             )}
             {overriddenBy && (
-              <Badge variant="secondary" className="text-blue-600 border-blue-400">
-                Overridden by {overriddenBy}
-              </Badge>
+              <span className="pill border border-teal/25 bg-teal/12 px-2 py-0.5 font-mono text-[10px] text-teal">
+                overridden by {overriddenBy}
+              </span>
             )}
             {adapter.disabled && (
-              <Badge variant="secondary" className="text-amber-600 border-amber-400">
-                {disabledBadgeLabel ?? "Hidden from menus"}
-              </Badge>
+              <span className="pill border border-white/10 bg-white/[0.03] px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+                {disabledBadgeLabel ?? "hidden from menus"}
+              </span>
             )}
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {adapter.type}
-            {adapter.packageName && adapter.packageName !== adapter.type && (
-              <> · {adapter.packageName}</>
-            )}
+          <p className="mt-0.5 truncate font-mono text-xs text-muted-foreground">
+            {sublabel}
+            {" · "}{sourceLabel}
             {" · "}{adapter.modelsCount} models
           </p>
         </div>
+
+        {/* Teal-mono status word */}
+        <span
+          className={cn(
+            "shrink-0 font-mono text-[11px] uppercase tracking-[0.12em]",
+            adapter.disabled ? "text-muted-foreground" : "text-teal",
+          )}
+        >
+          {adapter.disabled ? "disabled" : "connected"}
+        </span>
+
         <div className="flex items-center gap-2 shrink-0">
           {onReinstall && (
             <Button
@@ -134,18 +160,15 @@ function AdapterRow({
               <RefreshCw className={cn("h-4 w-4", isReloading && "animate-spin")} />
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="icon-sm"
-            className="h-8 w-8"
+          {/* Teal enable/disable toggle — ON means disabled:false */}
+          <ToggleSwitch
+            checked={!adapter.disabled}
+            disabled={isToggling}
+            onCheckedChange={(next) => onToggle(adapter.type, !next)}
             title={adapter.disabled
               ? (toggleTitleEnabled ?? "Show in agent menus")
               : (toggleTitleDisabled ?? "Hide from agent menus")}
-            disabled={isToggling}
-            onClick={() => onToggle(adapter.type, !adapter.disabled)}
-          >
-            <Power className={cn("h-4 w-4", !adapter.disabled ? "text-green-600" : "text-muted-foreground")} />
-          </Button>
+          />
           {canRemove && (
             <Button
               variant="outline"
@@ -397,12 +420,14 @@ export function AdapterManager() {
     <div className="space-y-6 max-w-5xl">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Cpu className="h-6 w-6 text-muted-foreground" />
-          <h1 className="text-xl font-semibold">Adapters</h1>
-          <Badge variant="outline" className="text-amber-600 border-amber-400">
-            Alpha
-          </Badge>
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03]">
+            <Cpu className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <h1 className="text-xl font-semibold">Connected providers</h1>
+          <span className="pill border border-teal/25 bg-teal/12 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-teal">
+            alpha
+          </span>
         </div>
 
         <Dialog open={installDialogOpen} onOpenChange={setInstallDialogOpen}>
@@ -512,14 +537,14 @@ export function AdapterManager() {
       </div>
 
       {/* Alpha notice */}
-      <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+      <div className="glass rounded-xl px-4 py-3">
         <div className="flex items-start gap-3">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
           <div className="space-y-1 text-sm">
             <p className="font-medium text-foreground">External adapters are alpha.</p>
             <p className="text-muted-foreground">
               The adapter plugin system is under active development. APIs and storage format may change.
-              Use the power icon to hide adapters from agent menus without removing them.
+              Use the toggle to hide adapters from agent menus without removing them.
             </p>
           </div>
         </div>
@@ -527,23 +552,22 @@ export function AdapterManager() {
 
       {/* External adapters */}
       <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Cpu className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-base font-semibold">External Adapters</h2>
-        </div>
+        <SectionLabel>External adapters</SectionLabel>
 
         {externalAdapters.length === 0 ? (
-          <Card className="bg-muted/30">
-            <CardContent className="flex flex-col items-center justify-center py-10">
-              <Cpu className="h-10 w-10 text-muted-foreground mb-4" />
+          <div className="glass rounded-xl">
+            <div className="flex flex-col items-center justify-center py-10">
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03]">
+                <Cpu className="h-5 w-5 text-muted-foreground" />
+              </div>
               <p className="text-sm font-medium">No external adapters installed</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Install an adapter package to extend model support.
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ) : (
-          <ul className="divide-y rounded-md border bg-card">
+          <ul className="space-y-2">
             {externalAdapters.map((adapter) => {
               const isBuiltinOverride = adapter.overriddenBuiltin;
               const overridePaused = isBuiltinOverride && !!adapter.overridePaused;
@@ -582,15 +606,12 @@ export function AdapterManager() {
 
       {/* Built-in adapters */}
       <section className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Cpu className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-base font-semibold">Built-in Adapters</h2>
-        </div>
+        <SectionLabel>Built-in adapters</SectionLabel>
 
         {builtinAdapters.length === 0 && overriddenBuiltins.length === 0 ? (
           <div className="text-sm text-muted-foreground">No built-in adapters found.</div>
         ) : (
-          <ul className="divide-y rounded-md border bg-card">
+          <ul className="space-y-2">
             {builtinAdapters.map((adapter) => (
               <AdapterRow
                 key={adapter.type}

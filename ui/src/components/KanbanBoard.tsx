@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { StatusIcon } from "./StatusIcon";
 import { PriorityIcon } from "./PriorityIcon";
-import { Identity } from "./Identity";
+import { AgentChip } from "./aurora";
 import type { Issue, IssueStatus } from "@paperclipai/shared";
 import { AlertTriangle } from "lucide-react";
 import { isSuccessfulRunHandoffRequired } from "../lib/successful-run-handoff";
@@ -125,10 +125,10 @@ function KanbanColumn({
         <StatusIcon status={status} />
         {(!isEmpty || isOver) && (
           <>
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <span className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
               {statusLabel(status)}
             </span>
-            <span className="text-xs text-muted-foreground/60 ml-auto tabular-nums">
+            <span className="ml-auto font-mono text-[11px] text-muted-foreground/60 tabular-nums">
               {issues.length}
             </span>
           </>
@@ -136,8 +136,8 @@ function KanbanColumn({
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-[120px] rounded-md p-1 space-y-1 transition-colors ${
-          isOver ? "bg-accent/40" : "bg-muted/20"
+        className={`flex-1 min-h-[120px] rounded-lg p-1.5 space-y-1.5 transition-colors ${
+          isOver ? "bg-teal/5 ring-1 ring-teal/20" : "bg-white/[0.02]"
         }`}
       >
         {/* Hidden cards are intentionally excluded from sort targets until revealed. */}
@@ -214,10 +214,10 @@ function KanbanCard({
       style={style}
       {...attributes}
       {...listeners}
-      className={`rounded-md border bg-card cursor-grab active:cursor-grabbing transition-shadow ${
+      className={`glass rounded-xl cursor-grab active:cursor-grabbing transition-[box-shadow,border-color] ${
         isDragging && !isOverlay ? "opacity-30" : ""
-      } ${isOverlay ? "shadow-lg ring-1 ring-primary/20" : "hover:shadow-sm"} ${
-        compact ? "p-2" : "p-2.5"
+      } ${isOverlay ? "border-teal/40 shadow-[var(--elevation-2)]" : "hover:border-teal/30 hover:shadow-[var(--glow-teal)]"} ${
+        compact ? "p-2.5" : "p-3"
       }`}
     >
       <Link
@@ -258,12 +258,12 @@ function KanbanCard({
           <PriorityIcon priority={issue.priority} />
           {issue.assigneeAgentId && (() => {
             const name = agentName(issue.assigneeAgentId);
-            return name ? (
-              <Identity name={name} size="xs" />
-            ) : (
-              <span className="text-xs text-muted-foreground font-mono">
-                {issue.assigneeAgentId.slice(0, 8)}
-              </span>
+            return (
+              <AgentChip
+                agent={{ id: issue.assigneeAgentId, name: name ?? undefined }}
+                name={name ?? issue.assigneeAgentId.slice(0, 8)}
+                className="min-w-0 text-xs"
+              />
             );
           })()}
         </div>
