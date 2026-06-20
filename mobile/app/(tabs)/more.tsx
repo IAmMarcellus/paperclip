@@ -1,9 +1,16 @@
 import { type Href, router } from "expo-router";
 import {
   Activity as ActivityIcon,
+  Boxes,
+  DollarSign,
+  FolderKanban,
+  Image as ImageIcon,
   type LucideIcon,
   Network,
+  Repeat,
+  Search as SearchIcon,
   Settings as SettingsIcon,
+  Target,
 } from "lucide-react-native";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -24,8 +31,19 @@ interface MoreSection {
   items: MoreItem[];
 }
 
-// Sections grow as later phases land (Projects, Goals, Routines, Costs, …).
 const SECTIONS: MoreSection[] = [
+  {
+    title: "Work",
+    items: [
+      { label: "Projects", hint: "Initiatives & workspaces", icon: FolderKanban, href: "/projects" },
+      { label: "Goals", hint: "Objectives", icon: Target, href: "/goals" },
+      { label: "Routines", hint: "Scheduled work", icon: Repeat, href: "/routines" },
+      { label: "Costs", hint: "Spend & budget", icon: DollarSign, href: "/costs" },
+      { label: "Artifacts", hint: "Outputs & media", icon: ImageIcon, href: "/artifacts" },
+      { label: "Workspaces", hint: "Execution environments", icon: Boxes, href: "/workspaces" },
+      { label: "Search", hint: "Across the company", icon: SearchIcon, href: "/search" },
+    ],
+  },
   {
     title: "Organization",
     items: [

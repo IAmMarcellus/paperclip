@@ -8,9 +8,12 @@ import type {
   AgentDetail,
   AgentWakeupResponse,
   Approval,
+  Artifact,
   AuthSession,
   Company,
   CostSummary,
+  ExecutionWorkspace,
+  Goal,
   HeartbeatRun,
   HeartbeatRunEvent,
   Issue,
@@ -19,6 +22,8 @@ import type {
   LiveRun,
   OrgNode,
   ActivityEntry,
+  Project,
+  Routine,
   RunLog,
   SidebarBadges,
   ThreadComment,
@@ -101,6 +106,38 @@ export const api = {
   // --- activity ---------------------------------------------------------
   activity: (companyId: string, limit = 30) =>
     apiFetch<ActivityEntry[]>(`/companies/${companyId}/activity`, { query: { limit } }),
+
+  // --- projects ---------------------------------------------------------
+  listProjects: (companyId: string) => apiFetch<Project[]>(`/companies/${companyId}/projects`),
+  getProject: (id: string) => apiFetch<Project>(`/projects/${id}`),
+  createProject: (companyId: string, body: Record<string, unknown>) =>
+    apiFetch<Project>(`/companies/${companyId}/projects`, { method: "POST", body }),
+
+  // --- goals ------------------------------------------------------------
+  listGoals: (companyId: string) => apiFetch<Goal[]>(`/companies/${companyId}/goals`),
+  getGoal: (id: string) => apiFetch<Goal>(`/goals/${id}`),
+  createGoal: (companyId: string, body: Record<string, unknown>) =>
+    apiFetch<Goal>(`/companies/${companyId}/goals`, { method: "POST", body }),
+
+  // --- routines ---------------------------------------------------------
+  listRoutines: (companyId: string) => apiFetch<Routine[]>(`/companies/${companyId}/routines`),
+  runRoutine: (id: string, body: Record<string, unknown> = {}) =>
+    apiFetch<unknown>(`/routines/${id}/run`, { method: "POST", body }),
+
+  // --- costs ------------------------------------------------------------
+  costsSummary: (companyId: string) =>
+    apiFetch<CostSummary>(`/companies/${companyId}/costs/summary`),
+  costsBy: (companyId: string, dim: "agent" | "provider" | "model") =>
+    apiFetch<Record<string, unknown>[]>(`/companies/${companyId}/costs/by-${dim}`),
+
+  // --- search / artifacts / workspaces / profile ------------------------
+  search: (companyId: string, q: string) =>
+    apiFetch<unknown>(`/companies/${companyId}/search`, { query: { q } }),
+  artifacts: (companyId: string) => apiFetch<Artifact[]>(`/companies/${companyId}/artifacts`),
+  executionWorkspaces: (companyId: string) =>
+    apiFetch<ExecutionWorkspace[]>(`/companies/${companyId}/execution-workspaces`),
+  userProfile: (companyId: string, slug: string) =>
+    apiFetch<Record<string, unknown>>(`/companies/${companyId}/users/${slug}/profile`),
 };
 
 export { ApiError } from "./client";

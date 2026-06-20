@@ -18,7 +18,10 @@ import type {
   Agent,
   AgentDetail,
   Approval,
+  Artifact,
   CostSummary,
+  ExecutionWorkspace,
+  Goal,
   HeartbeatRun,
   HeartbeatRunEvent,
   Issue,
@@ -26,6 +29,8 @@ import type {
   IssueLabel,
   LiveRun,
   OrgNode,
+  Project,
+  Routine,
   SidebarBadges,
   ThreadComment,
 } from "@/lib/api/types";
@@ -322,5 +327,91 @@ export function useCancelRun(runId: string) {
   return useMutation({
     mutationFn: () => api.cancelRun(runId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["run", runId] }),
+  });
+}
+
+// --- More hub: projects / goals / routines / costs / search / etc. --------
+
+export function useProjects(companyId: string): UseQueryResult<Project[]> {
+  return useQuery({ queryKey: ["projects", companyId], queryFn: () => api.listProjects(companyId), enabled: !!companyId });
+}
+export function useProject(id: string): UseQueryResult<Project> {
+  return useQuery({ queryKey: ["project", id], queryFn: () => api.getProject(id) });
+}
+export function useCreateProject(companyId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => api.createProject(companyId, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["projects", companyId] }),
+  });
+}
+export function useProjectIssues(companyId: string, projectId: string): UseQueryResult<Issue[]> {
+  return useQuery({
+    queryKey: ["project-issues", companyId, projectId],
+    queryFn: () => api.listIssues(companyId, { projectId, limit: 100 }),
+    enabled: !!companyId && !!projectId,
+  });
+}
+
+export function useGoals(companyId: string): UseQueryResult<Goal[]> {
+  return useQuery({ queryKey: ["goals", companyId], queryFn: () => api.listGoals(companyId), enabled: !!companyId });
+}
+export function useGoal(id: string): UseQueryResult<Goal> {
+  return useQuery({ queryKey: ["goal", id], queryFn: () => api.getGoal(id) });
+}
+export function useCreateGoal(companyId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => api.createGoal(companyId, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["goals", companyId] }),
+  });
+}
+
+export function useRoutines(companyId: string): UseQueryResult<Routine[]> {
+  return useQuery({ queryKey: ["routines", companyId], queryFn: () => api.listRoutines(companyId), enabled: !!companyId });
+}
+export function useRunRoutine() {
+  return useMutation({ mutationFn: (id: string) => api.runRoutine(id) });
+}
+
+export function useCostsSummary(companyId: string): UseQueryResult<CostSummary> {
+  return useQuery({ queryKey: ["costs", companyId], queryFn: () => api.costsSummary(companyId), enabled: !!companyId });
+}
+export function useCostsBy(
+  companyId: string,
+  dim: "agent" | "provider" | "model",
+): UseQueryResult<Record<string, unknown>[]> {
+  return useQuery({
+    queryKey: ["costs-by", companyId, dim],
+    queryFn: () => api.costsBy(companyId, dim),
+    enabled: !!companyId,
+  });
+}
+
+export function useSearch(companyId: string, q: string): UseQueryResult<unknown> {
+  return useQuery({
+    queryKey: ["search", companyId, q],
+    queryFn: () => api.search(companyId, q),
+    enabled: !!companyId && q.trim().length > 1,
+  });
+}
+
+export function useArtifacts(companyId: string): UseQueryResult<Artifact[]> {
+  return useQuery({ queryKey: ["artifacts", companyId], queryFn: () => api.artifacts(companyId), enabled: !!companyId });
+}
+
+export function useExecutionWorkspaces(companyId: string): UseQueryResult<ExecutionWorkspace[]> {
+  return useQuery({
+    queryKey: ["exec-workspaces", companyId],
+    queryFn: () => api.executionWorkspaces(companyId),
+    enabled: !!companyId,
+  });
+}
+
+export function useUserProfile(companyId: string, slug: string): UseQueryResult<Record<string, unknown>> {
+  return useQuery({
+    queryKey: ["user-profile", companyId, slug],
+    queryFn: () => api.userProfile(companyId, slug),
+    enabled: !!companyId && !!slug,
   });
 }
