@@ -10,9 +10,12 @@ import type {
   Approval,
   AuthSession,
   Company,
+  CostSummary,
   HeartbeatRun,
   HeartbeatRunEvent,
   Issue,
+  IssueComment,
+  IssueLabel,
   LiveRun,
   OrgNode,
   ActivityEntry,
@@ -56,6 +59,25 @@ export const api = {
   // --- issues -----------------------------------------------------------
   listIssues: (companyId: string, query: Record<string, string | number> = {}) =>
     apiFetch<Issue[]>(`/companies/${companyId}/issues`, { query }),
+  getIssue: (id: string) => apiFetch<Issue>(`/issues/${id}`),
+  createIssue: (companyId: string, body: Record<string, unknown>) =>
+    apiFetch<Issue>(`/companies/${companyId}/issues`, { method: "POST", body }),
+  updateIssue: (id: string, body: Record<string, unknown>) =>
+    apiFetch<Issue>(`/issues/${id}`, { method: "PATCH", body }),
+  issueComments: (id: string, query: Record<string, string | number> = {}) =>
+    apiFetch<IssueComment[]>(`/issues/${id}/comments`, { query }),
+  addComment: (
+    id: string,
+    body: { body: string; reopen?: boolean; interrupt?: boolean },
+  ) => apiFetch<IssueComment>(`/issues/${id}/comments`, { method: "POST", body }),
+  checkoutIssue: (id: string, body: Record<string, unknown>) =>
+    apiFetch<Issue>(`/issues/${id}/checkout`, { method: "POST", body }),
+  releaseIssue: (id: string) => apiFetch<Issue>(`/issues/${id}/release`, { method: "POST" }),
+  issueActivity: (id: string) => apiFetch<ActivityEntry[]>(`/issues/${id}/activity`),
+  issueRuns: (id: string) => apiFetch<LiveRun[]>(`/issues/${id}/runs`),
+  issueCostSummary: (id: string) => apiFetch<CostSummary>(`/issues/${id}/cost-summary`),
+  issueApprovals: (id: string) => apiFetch<Approval[]>(`/issues/${id}/approvals`),
+  labels: (companyId: string) => apiFetch<IssueLabel[]>(`/companies/${companyId}/labels`),
 
   // --- approvals --------------------------------------------------------
   listApprovals: (companyId: string) =>

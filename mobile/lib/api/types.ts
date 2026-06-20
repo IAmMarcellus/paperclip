@@ -14,6 +14,15 @@ export type {
   HeartbeatRunEvent,
   Issue,
   IssueComment,
+  IssueLabel,
+  CostSummary,
+  Project,
+  Goal,
+  Routine,
+  RoutineDetail,
+  RoutineRun,
+  SidebarBadges,
+  ExecutionWorkspace,
   CurrentUserProfile,
 } from "@paperclipai/shared";
 

@@ -4,9 +4,11 @@
  * status.
  */
 import {
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
+  type UseInfiniteQueryResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
 
@@ -16,12 +18,17 @@ import type {
   Agent,
   AgentDetail,
   Approval,
+  CostSummary,
   HeartbeatRun,
   HeartbeatRunEvent,
   Issue,
+  IssueComment,
+  IssueLabel,
   LiveRun,
   OrgNode,
 } from "@/lib/api/types";
+
+const ISSUES_PAGE = 50;
 
 const TERMINAL = new Set([
   "succeeded",
@@ -118,6 +125,102 @@ export function useIssues(companyId: string): UseQueryResult<Issue[]> {
     queryKey: ["issues", companyId],
     queryFn: () => api.listIssues(companyId),
     refetchInterval: 10000,
+  });
+}
+
+/** Infinite, offset-paginated issues for the Tasks list. */
+export function useIssuesInfinite(
+  companyId: string,
+  filters: Record<string, string | number> = {},
+): UseInfiniteQueryResult<{ pages: Issue[][] }> {
+  const key = JSON.stringify(filters);
+  return useInfiniteQuery({
+    queryKey: ["issues-infinite", companyId, key],
+    enabled: !!companyId,
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      api.listIssues(companyId, {
+        ...filters,
+        limit: ISSUES_PAGE,
+        offset: pageParam as number,
+        sortField: "updated",
+        sortDir: "desc",
+      }),
+    getNextPageParam: (last: Issue[], all: Issue[][]) =>
+      last.length === ISSUES_PAGE ? all.length * ISSUES_PAGE : undefined,
+    refetchInterval: 12000,
+  }) as UseInfiniteQueryResult<{ pages: Issue[][] }>;
+}
+
+// --- issue detail ---------------------------------------------------------
+
+export function useIssue(id: string): UseQueryResult<Issue> {
+  return useQuery({ queryKey: ["issue", id], queryFn: () => api.getIssue(id), refetchInterval: 8000 });
+}
+
+export function useIssueComments(id: string): UseQueryResult<IssueComment[]> {
+  return useQuery({
+    queryKey: ["issue-comments", id],
+    queryFn: () => api.issueComments(id, { limit: 100, order: "asc" }),
+    refetchInterval: 4000,
+  });
+}
+
+export function useIssueRuns(id: string): UseQueryResult<LiveRun[]> {
+  return useQuery({
+    queryKey: ["issue-runs", id],
+    queryFn: () => api.issueRuns(id),
+    refetchInterval: 4000,
+  });
+}
+
+export function useIssueActivity(id: string): UseQueryResult<ActivityEntry[]> {
+  return useQuery({ queryKey: ["issue-activity", id], queryFn: () => api.issueActivity(id) });
+}
+
+export function useIssueCostSummary(id: string): UseQueryResult<CostSummary> {
+  return useQuery({ queryKey: ["issue-cost", id], queryFn: () => api.issueCostSummary(id) });
+}
+
+export function useIssueApprovals(id: string): UseQueryResult<Approval[]> {
+  return useQuery({ queryKey: ["issue-approvals", id], queryFn: () => api.issueApprovals(id) });
+}
+
+export function useLabels(companyId: string): UseQueryResult<IssueLabel[]> {
+  return useQuery({
+    queryKey: ["labels", companyId],
+    queryFn: () => api.labels(companyId),
+    enabled: !!companyId,
+    staleTime: 60_000,
+  });
+}
+
+/** Mutations for an issue: post comment, patch fields, (un)assign. */
+export function useIssueActions(id: string) {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["issue", id] });
+    qc.invalidateQueries({ queryKey: ["issue-comments", id] });
+    qc.invalidateQueries({ queryKey: ["issue-runs", id] });
+    qc.invalidateQueries({ queryKey: ["issues-infinite"] });
+  };
+  const postComment = useMutation({
+    mutationFn: (input: { body: string; reopen?: boolean; interrupt?: boolean }) =>
+      api.addComment(id, input),
+    onSuccess: invalidate,
+  });
+  const update = useMutation({
+    mutationFn: (patch: Record<string, unknown>) => api.updateIssue(id, patch),
+    onSuccess: invalidate,
+  });
+  return { postComment, update };
+}
+
+export function useCreateIssue(companyId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => api.createIssue(companyId, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["issues-infinite", companyId] }),
   });
 }
 

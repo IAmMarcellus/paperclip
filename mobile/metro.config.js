@@ -23,6 +23,29 @@ config.resolver.nodeModulesPaths = [
 // Honor the "exports" field so `@paperclipai/shared` resolves to ./src/index.ts.
 config.resolver.unstable_enablePackageExports = true;
 
+// @paperclipai/shared is consumed as TS source but its internal imports use ESM
+// `.js` specifiers (e.g. `export ... from "./adapter-type.js"`). Metro won't map
+// `.js` → `.ts`, so when we import a *runtime* value from shared (not just
+// types) resolution fails. Rewrite `.js` → extensionless for relative imports
+// originating inside packages/shared so Metro finds the `.ts` sibling.
+const sharedSrc = path.resolve(workspaceRoot, "packages/shared/src");
+const upstreamResolve = config.resolver.resolveRequest;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (
+    moduleName.startsWith(".") &&
+    moduleName.endsWith(".js") &&
+    typeof context.originModulePath === "string" &&
+    context.originModulePath.startsWith(sharedSrc)
+  ) {
+    try {
+      return context.resolveRequest(context, moduleName.replace(/\.js$/, ""), platform);
+    } catch {
+      // fall through to default resolution
+    }
+  }
+  return (upstreamResolve ?? context.resolveRequest)(context, moduleName, platform);
+};
+
 // IMPORTANT: keep hierarchical lookup ENABLED for pnpm. pnpm stores each
 // package's deps as siblings in its `.pnpm` dir, found by walking up the tree —
 // disabling it (the yarn/npm hoisted-monorepo trick) breaks transitive
