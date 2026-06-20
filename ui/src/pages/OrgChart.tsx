@@ -541,7 +541,7 @@ export function OrgChart() {
                   key={`${parent.id}-${child.id}`}
                   d={`M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`}
                   fill="none"
-                  stroke="rgba(94, 234, 212, 0.35)"
+                  stroke="var(--glass-border-accent)"
                   strokeWidth={1.5}
                   strokeDasharray="2 5"
                   strokeLinecap="round"

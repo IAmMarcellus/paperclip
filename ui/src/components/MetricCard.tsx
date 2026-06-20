@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "@/lib/router";
+import { SectionLabel } from "./aurora";
 
 interface MetricCardProps {
   icon: LucideIcon;
@@ -17,7 +18,7 @@ export function MetricCard({ icon: Icon, value, label, description, to, onClick 
   const inner = (
     <div className={`glass h-full rounded-xl px-4 py-4 sm:px-5 sm:py-5 transition-[border-color,box-shadow]${isClickable ? " hover:border-teal/30 hover:shadow-[var(--glow-teal)] cursor-pointer" : ""}`}>
       <div className="flex items-start justify-between gap-3">
-        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+        <SectionLabel>{label}</SectionLabel>
         <Icon className="h-4 w-4 text-muted-foreground/50 shrink-0" />
       </div>
       <p className="mt-2 text-2xl sm:text-3xl font-semibold tracking-tight tabular-nums">{value}</p>

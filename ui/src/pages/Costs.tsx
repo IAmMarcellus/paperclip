@@ -16,6 +16,7 @@ import { BillerSpendCard } from "../components/BillerSpendCard";
 import { BudgetIncidentCard } from "../components/BudgetIncidentCard";
 import { BudgetPolicyCard } from "../components/BudgetPolicyCard";
 import { EmptyState } from "../components/EmptyState";
+import { SectionLabel } from "../components/aurora";
 import { FinanceBillerCard } from "../components/FinanceBillerCard";
 import { FinanceKindCard } from "../components/FinanceKindCard";
 import { FinanceTimelineCard } from "../components/FinanceTimelineCard";
@@ -83,7 +84,7 @@ function MetricTile({
     <div className="glass rounded-xl p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">{label}</div>
+          <SectionLabel>{label}</SectionLabel>
           <div className="mt-2 text-2xl font-semibold tabular-nums">{value}</div>
           <div className="mt-1 text-xs leading-5 text-muted-foreground">{subtitle}</div>
         </div>

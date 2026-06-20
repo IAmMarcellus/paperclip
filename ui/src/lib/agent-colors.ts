@@ -6,7 +6,7 @@
 // colour flicker). The index maps onto the brand `--agent-{n}a` / `--agent-{n}b`
 // gradient pairs defined in `index.css` and already consumed by `AgentCapsule`.
 
-export const AGENT_GRADIENT_COUNT = 10;
+const AGENT_GRADIENT_COUNT = 10;
 
 type AgentLike = { id?: string | null; name?: string | null } | string | null | undefined;
 
@@ -27,8 +27,8 @@ export function agentGradientIndex(agent: AgentLike): number {
   return (Math.abs(h) % AGENT_GRADIENT_COUNT) + 1;
 }
 
-/** The two CSS-var gradient stops for an agent (top → bottom). */
-export function agentGradientStops(agent: AgentLike): { from: string; to: string } {
+/** The two CSS-var gradient stops for an agent (top → bottom). Internal helper. */
+function agentGradientStops(agent: AgentLike): { from: string; to: string } {
   const i = agentGradientIndex(agent);
   return { from: `var(--agent-${i}a)`, to: `var(--agent-${i}b)` };
 }

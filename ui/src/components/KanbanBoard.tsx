@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { StatusIcon } from "./StatusIcon";
 import { PriorityIcon } from "./PriorityIcon";
-import { AgentChip } from "./aurora";
+import { AgentChip, SectionLabel } from "./aurora";
 import type { Issue, IssueStatus } from "@paperclipai/shared";
 import { AlertTriangle } from "lucide-react";
 import { isSuccessfulRunHandoffRequired } from "../lib/successful-run-handoff";
@@ -125,9 +125,7 @@ function KanbanColumn({
         <StatusIcon status={status} />
         {(!isEmpty || isOver) && (
           <>
-            <span className="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              {statusLabel(status)}
-            </span>
+            <SectionLabel>{statusLabel(status)}</SectionLabel>
             <span className="ml-auto font-mono text-[11px] text-muted-foreground/60 tabular-nums">
               {issues.length}
             </span>

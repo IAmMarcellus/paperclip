@@ -30,6 +30,8 @@ function GlobalToolbarPlugins({ context }: { context: GlobalToolbarContext }) {
   );
 }
 
+const BAR_CLS = "border-b border-white/10 bg-background/60 backdrop-blur-md h-12 shrink-0 flex items-center";
+
 export function BreadcrumbBar() {
   const { breadcrumbs, mobileToolbar } = useBreadcrumbs();
   const { toggleSidebar, isMobile } = useSidebar();
@@ -47,7 +49,7 @@ export function BreadcrumbBar() {
 
   if (isMobile && mobileToolbar) {
     return (
-      <div className="border-b border-white/10 bg-background/60 backdrop-blur-md px-2 h-12 shrink-0 flex items-center">
+      <div className={`${BAR_CLS} px-2`}>
         {mobileToolbar}
       </div>
     );
@@ -55,7 +57,7 @@ export function BreadcrumbBar() {
 
   if (breadcrumbs.length === 0) {
     return (
-      <div className="border-b border-white/10 bg-background/60 backdrop-blur-md px-4 md:px-6 h-12 shrink-0 flex items-center justify-end">
+      <div className={`${BAR_CLS} px-4 md:px-6 justify-end`}>
         {globalToolbarSlots}
       </div>
     );
@@ -76,7 +78,7 @@ export function BreadcrumbBar() {
   // Single breadcrumb = page title (uppercase)
   if (breadcrumbs.length === 1) {
     return (
-      <div className="border-b border-white/10 bg-background/60 backdrop-blur-md px-4 md:px-6 h-12 shrink-0 flex items-center">
+      <div className={`${BAR_CLS} px-4 md:px-6`}>
         {menuButton}
         <div className="min-w-0 overflow-hidden flex-1">
           <h1 className="font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground truncate">

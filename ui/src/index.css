@@ -60,13 +60,11 @@
   --indigo: #818cf8;
   --amber: #fbbf24;
   --rose: #fb7185;
-  --rose-strong: #f43f5e;
   --accent-gradient: linear-gradient(135deg, #5eead4, #818cf8);
   --glass-fill: linear-gradient(rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012));
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-border-accent: rgba(94, 234, 212, 0.3);
   --glow-teal: 0 0 8px rgba(94, 234, 212, 0.55);
-  --glow-indigo: 0 0 8px rgba(129, 140, 248, 0.5);
   --elevation-1: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 8px 24px -16px rgba(0, 0, 0, 0.6);
   --elevation-2: rgba(0, 0, 0, 0.7) 0px 30px 70px -28px;
 
@@ -259,30 +257,11 @@ body::after {
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(12px);
 }
-.glass-glow {
-  border-color: var(--glass-border-accent);
-  box-shadow: var(--glow-teal), var(--elevation-2);
-}
 .pill {
   border-radius: 99px;
 }
-.mono-label {
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 0.6875rem;
-  line-height: 1.1;
-  color: var(--muted-foreground);
-}
 .status-dot-glow {
   box-shadow: 0 0 8px currentColor;
-}
-.text-gradient {
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
 }
 
 @media (pointer: coarse) {
