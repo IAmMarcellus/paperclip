@@ -79,7 +79,13 @@ Don't use when: you want Paperclip to call a coding CLI directly (use \`opencode
 
 Start OpenSage first (\`make opensage\`, default :8800). One Paperclip agent maps to one durable
 OpenSage session that resumes across heartbeats. The OpenSage web server has no auth of its own,
-so keep it bound to localhost.`;
+so keep it bound to localhost.
+
+**Concurrency:** set this agent's **Max concurrent runs to 1-3** (Paperclip's per-agent default is 20).
+This adapter maps one agent to ONE OpenSage session, so concurrent runs of the same agent would race
+that shared session; and the local stack serves only a few sequences on one GPU. Keep it at 1 for a
+strict serial loop. (The local LiteLLM proxy caps GPU requests as a backstop, but a low per-agent run
+limit avoids host-side pile-up and 900s-timeout cascades.)`;
 
 export const openSageAdapter: ServerAdapterModule = {
   type: "opensage",
