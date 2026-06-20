@@ -1,9 +1,11 @@
 import { NativeTabs } from "expo-router/unstable-native-tabs";
 
+import { useSidebarBadges } from "@/hooks";
+import { useConnection } from "@/lib/connection";
 import { colors } from "@/theme";
 
 const { Trigger } = NativeTabs;
-const { Icon, Label } = Trigger;
+const { Icon, Label, Badge } = Trigger;
 
 /**
  * Native tab bar. On iOS 26 this renders a real Liquid Glass UITabBar; on
@@ -14,6 +16,10 @@ const { Icon, Label } = Trigger;
  * long-tail screens live behind the More hub (plain stack routes).
  */
 export default function TabsLayout() {
+  const { companyId } = useConnection();
+  const badges = useSidebarBadges(companyId ?? "");
+  const inboxCount = badges.data?.inbox ?? 0;
+
   return (
     <NativeTabs tintColor={colors.teal}>
       <Trigger name="index">
@@ -27,6 +33,7 @@ export default function TabsLayout() {
       <Trigger name="inbox">
         <Icon sf={{ default: "tray", selected: "tray.fill" }} />
         <Label>Inbox</Label>
+        {inboxCount > 0 ? <Badge>{inboxCount > 99 ? "99+" : String(inboxCount)}</Badge> : null}
       </Trigger>
       <Trigger name="agents">
         <Icon sf={{ default: "square.grid.2x2", selected: "square.grid.2x2.fill" }} />

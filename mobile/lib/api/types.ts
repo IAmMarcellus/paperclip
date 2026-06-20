@@ -99,3 +99,38 @@ export interface RunLog {
   offset: number;
   totalBytes: number;
 }
+
+/** Comment on an approval or similar thread — read defensively. */
+export interface ThreadComment {
+  id: string;
+  body: string;
+  authorType?: string | null;
+  authorAgentId?: string | null;
+  authorUserId?: string | null;
+  authorName?: string | null;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
+/** Artifact row from /companies/:id/artifacts — fields vary. */
+export interface Artifact {
+  id: string;
+  kind?: string | null;
+  title?: string | null;
+  name?: string | null;
+  url?: string | null;
+  thumbnailUrl?: string | null;
+  createdAt?: string;
+  issueId?: string | null;
+  [key: string]: unknown;
+}
+
+/** A single global-search hit — fields vary by entity type. */
+export interface SearchHit {
+  id: string;
+  type?: string | null;
+  kind?: string | null;
+  title?: string | null;
+  snippet?: string | null;
+  [key: string]: unknown;
+}

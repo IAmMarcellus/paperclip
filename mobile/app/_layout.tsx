@@ -48,6 +48,7 @@ export default function RootLayout() {
                 <Stack.Screen name="agents/[agentId]" />
                 <Stack.Screen name="issues/[issueId]" />
                 <Stack.Screen name="issues/new" options={{ presentation: "modal" }} />
+                <Stack.Screen name="approvals/[approvalId]" />
                 <Stack.Screen name="runs/[runId]" />
                 <Stack.Screen name="org" />
                 <Stack.Screen name="activity" />

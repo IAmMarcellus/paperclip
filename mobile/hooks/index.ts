@@ -26,6 +26,8 @@ import type {
   IssueLabel,
   LiveRun,
   OrgNode,
+  SidebarBadges,
+  ThreadComment,
 } from "@/lib/api/types";
 
 const ISSUES_PAGE = 50;
@@ -268,6 +270,51 @@ export function useApprovalActions(companyId: string) {
     onSuccess: invalidate,
   });
   return { approve, reject };
+}
+
+// --- inbox / approval detail ----------------------------------------------
+
+export function useSidebarBadges(companyId: string): UseQueryResult<SidebarBadges> {
+  return useQuery({
+    queryKey: ["sidebar-badges", companyId],
+    queryFn: () => api.sidebarBadges(companyId),
+    enabled: !!companyId,
+    refetchInterval: 15000,
+  });
+}
+
+export function useApproval(id: string): UseQueryResult<Approval> {
+  return useQuery({ queryKey: ["approval", id], queryFn: () => api.getApproval(id), refetchInterval: 8000 });
+}
+
+export function useApprovalComments(id: string): UseQueryResult<ThreadComment[]> {
+  return useQuery({
+    queryKey: ["approval-comments", id],
+    queryFn: () => api.approvalComments(id),
+    refetchInterval: 6000,
+  });
+}
+
+export function useApprovalIssues(id: string): UseQueryResult<Issue[]> {
+  return useQuery({ queryKey: ["approval-issues", id], queryFn: () => api.approvalIssues(id) });
+}
+
+/** Approve / reject / comment from the approval detail screen. */
+export function useApprovalDetailActions(id: string) {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["approval", id] });
+    qc.invalidateQueries({ queryKey: ["approval-comments", id] });
+    qc.invalidateQueries({ queryKey: ["approvals"] });
+    qc.invalidateQueries({ queryKey: ["sidebar-badges"] });
+  };
+  const approve = useMutation({ mutationFn: () => api.approve(id), onSuccess: invalidate });
+  const reject = useMutation({ mutationFn: () => api.reject(id), onSuccess: invalidate });
+  const comment = useMutation({
+    mutationFn: (text: string) => api.addApprovalComment(id, { text }),
+    onSuccess: invalidate,
+  });
+  return { approve, reject, comment };
 }
 
 export function useCancelRun(runId: string) {

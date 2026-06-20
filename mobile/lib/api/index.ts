@@ -20,6 +20,8 @@ import type {
   OrgNode,
   ActivityEntry,
   RunLog,
+  SidebarBadges,
+  ThreadComment,
 } from "./types";
 
 export const api = {
@@ -82,10 +84,19 @@ export const api = {
   // --- approvals --------------------------------------------------------
   listApprovals: (companyId: string) =>
     apiFetch<Approval[]>(`/companies/${companyId}/approvals`),
+  getApproval: (id: string) => apiFetch<Approval>(`/approvals/${id}`),
+  approvalComments: (id: string) => apiFetch<ThreadComment[]>(`/approvals/${id}/comments`),
+  addApprovalComment: (id: string, body: { text: string }) =>
+    apiFetch<ThreadComment>(`/approvals/${id}/comments`, { method: "POST", body }),
+  approvalIssues: (id: string) => apiFetch<Issue[]>(`/approvals/${id}/issues`),
   approve: (id: string, body: Record<string, unknown> = {}) =>
     apiFetch<Approval>(`/approvals/${id}/approve`, { method: "POST", body }),
   reject: (id: string, body: Record<string, unknown> = {}) =>
     apiFetch<Approval>(`/approvals/${id}/reject`, { method: "POST", body }),
+
+  // --- inbox / badges ---------------------------------------------------
+  sidebarBadges: (companyId: string) =>
+    apiFetch<SidebarBadges>(`/companies/${companyId}/sidebar-badges`),
 
   // --- activity ---------------------------------------------------------
   activity: (companyId: string, limit = 30) =>
