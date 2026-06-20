@@ -1,0 +1,92 @@
+/**
+ * API view-models.
+ *
+ * Re-exports the canonical entity types from @paperclipai/shared and adds a few
+ * lightweight shapes for endpoints whose responses are projections/lean trees.
+ * (Note: over the wire, Date fields arrive as ISO strings — we treat them as
+ * display strings.)
+ */
+export type {
+  Agent,
+  AgentDetail,
+  AgentWakeupResponse,
+  HeartbeatRun,
+  HeartbeatRunEvent,
+  Issue,
+  IssueComment,
+  CurrentUserProfile,
+} from "@paperclipai/shared";
+
+export interface Company {
+  id: string;
+  name: string;
+  [key: string]: unknown;
+}
+
+export interface AuthSession {
+  session: { id: string; userId: string };
+  user: {
+    id: string;
+    email: string | null;
+    name: string | null;
+    image: string | null;
+  };
+}
+
+/** Projection returned by /companies/:id/live-runs. */
+export interface LiveRun {
+  id: string;
+  status: string;
+  agentId: string;
+  agentName: string | null;
+  adapterType: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdAt: string | null;
+  logBytes: number | null;
+}
+
+/** Lean org node from /companies/:id/org (recursive). */
+export interface OrgNode {
+  id: string;
+  name: string;
+  role?: string | null;
+  title?: string | null;
+  status?: string | null;
+  children?: OrgNode[];
+  [key: string]: unknown;
+}
+
+/** Activity row — fields vary; we read defensively in the UI. */
+export interface ActivityEntry {
+  id: string;
+  createdAt?: string;
+  agentId?: string | null;
+  agentName?: string | null;
+  type?: string | null;
+  kind?: string | null;
+  action?: string | null;
+  message?: string | null;
+  summary?: string | null;
+  title?: string | null;
+  [key: string]: unknown;
+}
+
+/** Approval row — fields vary; read defensively. */
+export interface Approval {
+  id: string;
+  status: string;
+  agentId?: string | null;
+  agentName?: string | null;
+  title?: string | null;
+  summary?: string | null;
+  priority?: string | null;
+  createdAt?: string;
+  [key: string]: unknown;
+}
+
+export interface RunLog {
+  text: string;
+  offset: number;
+  totalBytes: number;
+}

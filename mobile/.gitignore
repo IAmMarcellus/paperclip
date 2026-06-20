@@ -1,0 +1,21 @@
+# Expo / React Native
+.expo/
+dist/
+web-build/
+node_modules/
+
+# Native
+ios/
+android/
+*.orig.*
+
+# Metro
+.metro-health-check*
+
+# Env
+.env*.local
+
+# OS / editor
+.DS_Store
+*.tsbuildinfo
+expo-env.d.ts
