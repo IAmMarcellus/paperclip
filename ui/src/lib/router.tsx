@@ -43,6 +43,18 @@ function useActiveCompanyPrefix(): string | null {
 
 export * from "react-router-dom";
 
+// Tracks whether we are already rendering inside a <Link>/<a>. A nested <a> is
+// invalid HTML — the browser un-nests it, which destabilises any Popover
+// anchored to the outer link (this previously crashed the page with a
+// "Maximum update depth exceeded" loop). Nested issue mentions read this and
+// render as a non-anchor instead (see IssueReferencePill).
+const InsideLinkContext = React.createContext(false);
+
+/** True when rendered inside another `<Link>` — used to avoid nesting anchors. */
+export function useInsideLink(): boolean {
+  return React.useContext(InsideLinkContext);
+}
+
 type CompanyLinkProps = React.ComponentProps<typeof RouterDom.Link> & {
   disableIssueQuicklook?: boolean;
   issuePrefetch?: Issue | null;
@@ -53,15 +65,45 @@ type CompanyLinkProps = React.ComponentProps<typeof RouterDom.Link> & {
 export const Link = React.forwardRef<HTMLAnchorElement, CompanyLinkProps>(
   function CompanyLink({
     to,
+    children,
     disableIssueQuicklook = false,
     issuePrefetch = null,
     issueQuicklookSide,
     issueQuicklookAlign,
     ...props
   }, ref) {
+    const insideLink = React.useContext(InsideLinkContext);
     const companyPrefix = useActiveCompanyPrefix();
+
+    // A link nested inside another link is invalid HTML — the browser un-nests
+    // it, which destabilises any Popover anchored to the outer link (this
+    // previously crashed the page with "Maximum update depth exceeded"). Render
+    // a non-navigable span that keeps the visual + a11y attributes; the
+    // enclosing link owns the click. (IssueReferencePill does the same for its
+    // mention chips; this is the general safety net, e.g. MarkdownBody mentions.)
+    if (insideLink) {
+      const spanProps: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(props)) {
+        if (
+          key === "className" ||
+          key === "title" ||
+          key === "id" ||
+          key === "style" ||
+          key === "role" ||
+          key.startsWith("data-") ||
+          key.startsWith("aria-")
+        ) {
+          spanProps[key] = value;
+        }
+      }
+      return <span {...spanProps}>{children}</span>;
+    }
+
     const resolvedTo = resolveTo(to, companyPrefix);
     const issuePathId = parseIssuePathIdFromPath(typeof resolvedTo === "string" ? resolvedTo : resolvedTo.pathname);
+
+    // Mark descendants as "inside a link" so any nested link degrades (above).
+    const content = <InsideLinkContext.Provider value={true}>{children}</InsideLinkContext.Provider>;
 
     if (issuePathId) {
       return (
@@ -74,11 +116,17 @@ export const Link = React.forwardRef<HTMLAnchorElement, CompanyLinkProps>(
           issueQuicklookSide={issueQuicklookSide}
           issueQuicklookAlign={issueQuicklookAlign}
           {...props}
-        />
+        >
+          {content}
+        </IssueLinkQuicklook>
       );
     }
 
-    return <RouterDom.Link ref={ref} to={resolvedTo} {...props} />;
+    return (
+      <RouterDom.Link ref={ref} to={resolvedTo} {...props}>
+        {content}
+      </RouterDom.Link>
+    );
   },
 );
 

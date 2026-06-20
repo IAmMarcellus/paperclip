@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { IssueRelationIssueSummary } from "@paperclipai/shared";
-import { Link } from "@/lib/router";
+import { Link, useInsideLink } from "@/lib/router";
 import { cn } from "../lib/utils";
 import { StatusIcon } from "./StatusIcon";
 
@@ -16,6 +16,7 @@ export function IssueReferencePill({
   className?: string;
   children?: ReactNode;
 }) {
+  const insideLink = useInsideLink();
   const issueLabel = issue.identifier ?? issue.title;
   const classNames = cn(
     "paperclip-mention-chip paperclip-mention-chip--issue",
@@ -31,13 +32,16 @@ export function IssueReferencePill({
     </>
   );
 
-  if (!issue.identifier) {
+  // Render a non-anchor span when there's no identifier to link to, or when we
+  // are already inside another link (an <a> inside an <a> is invalid HTML — the
+  // enclosing link owns the click). See InsideLinkContext in lib/router.
+  if (!issue.identifier || insideLink) {
     return (
       <span
         data-mention-kind="issue"
         className={classNames}
         title={issue.title}
-        aria-label={`Task: ${issue.title}`}
+        aria-label={issue.identifier ? `Task ${issueLabel}: ${issue.title}` : `Task: ${issue.title}`}
       >
         {content}
       </span>

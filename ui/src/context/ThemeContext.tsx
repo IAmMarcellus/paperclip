@@ -27,6 +27,10 @@ function applyDark() {
 }
 
 const noop = () => {};
+// Stable identity — never changes, so `useTheme()` consumers never re-render
+// from the provider. (A new object literal here would re-render every consumer
+// on each provider render.)
+const THEME_VALUE: ThemeContextValue = { theme: "dark", setTheme: noop, toggleTheme: noop };
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   // Force dark on mount (the inline bootstrap in index.html already set it
@@ -35,11 +39,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyDark();
   }, []);
 
-  return (
-    <ThemeContext.Provider value={{ theme: "dark", setTheme: noop, toggleTheme: noop }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={THEME_VALUE}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {
