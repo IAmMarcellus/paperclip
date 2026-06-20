@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -34,6 +35,8 @@ export default function ActivityScreen() {
   return (
     <Screen
       title="Activity"
+      onBack={() => router.back()}
+      bottomInset={spacing[8]}
       onRefresh={() => {
         approvals.refetch();
         activity.refetch();

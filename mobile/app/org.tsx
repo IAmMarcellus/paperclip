@@ -70,6 +70,8 @@ export default function OrgScreen() {
     <Screen
       eyebrow={`${meta.count} nodes · depth ${meta.depth}`}
       title="Org map"
+      onBack={() => router.back()}
+      bottomInset={spacing[8]}
       onRefresh={() => {
         org.refetch();
         agents.refetch();

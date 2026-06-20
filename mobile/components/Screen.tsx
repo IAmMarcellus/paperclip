@@ -3,6 +3,7 @@
  * large header (greeting/title + right slot). The ambient Aurora background is
  * rendered once at the root layout and shows through this transparent scaffold.
  */
+import { ChevronLeft } from "lucide-react-native";
 import { type ReactNode } from "react";
 import {
   RefreshControl,
@@ -15,6 +16,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { IconButton } from "@/components/ui/IconButton";
 import { colors, spacing, text } from "@/theme";
 
 export interface ScreenProps {
@@ -25,6 +27,8 @@ export interface ScreenProps {
   eyebrow?: string;
   /** Right-aligned header accessory (icon buttons, avatar). */
   headerRight?: ReactNode;
+  /** When set, renders a back button above the header (for pushed stack screens). */
+  onBack?: () => void;
   scroll?: boolean;
   onRefresh?: () => void;
   refreshing?: boolean;
@@ -38,6 +42,7 @@ export function Screen({
   title,
   eyebrow,
   headerRight,
+  onBack,
   scroll = true,
   onRefresh,
   refreshing = false,
@@ -47,13 +52,22 @@ export function Screen({
   const insets = useSafeAreaInsets();
 
   const header =
-    title || eyebrow || headerRight ? (
-      <View style={styles.header}>
-        <View style={styles.headerText}>
-          {eyebrow ? <Text style={[text.small, styles.eyebrow]}>{eyebrow}</Text> : null}
-          {title ? <Text style={text.displayLg}>{title}</Text> : null}
+    title || eyebrow || headerRight || onBack ? (
+      <View>
+        {onBack ? (
+          <View style={styles.backRow}>
+            <IconButton onPress={onBack}>
+              <ChevronLeft size={20} color={colors.foregroundSoft} />
+            </IconButton>
+          </View>
+        ) : null}
+        <View style={styles.header}>
+          <View style={styles.headerText}>
+            {eyebrow ? <Text style={[text.small, styles.eyebrow]}>{eyebrow}</Text> : null}
+            {title ? <Text style={text.displayLg}>{title}</Text> : null}
+          </View>
+          {headerRight}
         </View>
-        {headerRight}
       </View>
     ) : null;
 
@@ -95,6 +109,7 @@ export function Screen({
 const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
+  backRow: { flexDirection: "row", marginBottom: spacing[3] },
   header: {
     flexDirection: "row",
     alignItems: "center",

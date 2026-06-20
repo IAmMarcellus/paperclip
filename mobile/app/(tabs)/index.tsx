@@ -43,7 +43,7 @@ export default function HomeScreen() {
       eyebrow={`${greeting()}${user?.name ? `, ${user.name.split(" ")[0]}` : ""}`}
       title="Command"
       headerRight={
-        <Pressable onPress={() => router.push("/(tabs)/settings")}>
+        <Pressable onPress={() => router.push("/settings")}>
           <Avatar name={user?.name ?? "You"} imageUri={user?.image} size={38} />
         </Pressable>
       }

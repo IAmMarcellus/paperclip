@@ -25,7 +25,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <Screen title="Settings">
+    <Screen title="Settings" onBack={() => router.back()} bottomInset={spacing[8]}>
       <SectionLabel>Account</SectionLabel>
       <GlassCard padding={16}>
         <View style={styles.account}>

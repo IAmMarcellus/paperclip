@@ -47,6 +47,9 @@ export default function RootLayout() {
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="agents/[agentId]" />
                 <Stack.Screen name="runs/[runId]" />
+                <Stack.Screen name="org" />
+                <Stack.Screen name="activity" />
+                <Stack.Screen name="settings" />
                 <Stack.Screen name="connect" options={{ presentation: "modal" }} />
                 <Stack.Screen name="index" />
               </Stack>
