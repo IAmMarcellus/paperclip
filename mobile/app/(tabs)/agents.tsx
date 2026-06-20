@@ -2,9 +2,12 @@ import { router } from "expo-router";
 import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
+import { Plus } from "lucide-react-native";
+
 import { MiniCapsule } from "@/components/aurora/AgentCapsule";
 import { AgentStatusBadge } from "@/components/aurora/StatusBadge";
 import { Screen } from "@/components/Screen";
+import { IconButton } from "@/components/ui/IconButton";
 import { ListRow } from "@/components/ui/ListRow";
 import { RowsCard } from "@/components/ui/RowsCard";
 import { SectionLabel } from "@/components/ui/SectionLabel";
@@ -34,6 +37,11 @@ export default function AgentsScreen() {
   return (
     <Screen
       title="Agents"
+      headerRight={
+        <IconButton onPress={() => router.push("/agents/new")}>
+          <Plus size={20} color={colors.teal} />
+        </IconButton>
+      }
       onRefresh={() => agents.refetch()}
       refreshing={agents.isRefetching}
     >

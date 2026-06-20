@@ -125,6 +125,16 @@ export interface Artifact {
   [key: string]: unknown;
 }
 
+/** Adapter descriptor from GET /adapters. */
+export interface AdapterInfo {
+  type: string;
+  label: string;
+  source?: string;
+  disabled?: boolean;
+  loaded?: boolean;
+  [key: string]: unknown;
+}
+
 /** A single global-search hit — fields vary by entity type. */
 export interface SearchHit {
   id: string;

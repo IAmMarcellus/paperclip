@@ -46,6 +46,8 @@ export default function RootLayout() {
               >
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="agents/[agentId]" />
+                <Stack.Screen name="agents/new" options={{ presentation: "modal" }} />
+                <Stack.Screen name="board-chat" />
                 <Stack.Screen name="issues/[issueId]" />
                 <Stack.Screen name="issues/new" options={{ presentation: "modal" }} />
                 <Stack.Screen name="projects/new" options={{ presentation: "modal" }} />

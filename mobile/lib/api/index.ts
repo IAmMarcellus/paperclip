@@ -4,6 +4,7 @@
  */
 import { apiFetch, type RequestOptions } from "./client";
 import type {
+  AdapterInfo,
   Agent,
   AgentDetail,
   AgentWakeupResponse,
@@ -38,6 +39,9 @@ export const api = {
   listAgents: (companyId: string) =>
     apiFetch<Agent[]>(`/companies/${companyId}/agents`),
   getAgent: (id: string) => apiFetch<AgentDetail>(`/agents/${id}`),
+  createAgent: (companyId: string, body: Record<string, unknown>) =>
+    apiFetch<Agent>(`/companies/${companyId}/agents`, { method: "POST", body }),
+  adapters: () => apiFetch<AdapterInfo[]>("/adapters"),
   orgTree: (companyId: string) => apiFetch<OrgNode[]>(`/companies/${companyId}/org`),
   pauseAgent: (id: string) => apiFetch<Agent>(`/agents/${id}/pause`, { method: "POST" }),
   resumeAgent: (id: string) => apiFetch<Agent>(`/agents/${id}/resume`, { method: "POST" }),

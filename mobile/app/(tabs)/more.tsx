@@ -6,6 +6,7 @@ import {
   FolderKanban,
   Image as ImageIcon,
   type LucideIcon,
+  MessagesSquare,
   Network,
   Repeat,
   Search as SearchIcon,
@@ -49,6 +50,7 @@ const SECTIONS: MoreSection[] = [
     items: [
       { label: "Org map", hint: "Chain of command", icon: Network, href: "/org" },
       { label: "Activity", hint: "Company-wide stream", icon: ActivityIcon, href: "/activity" },
+      { label: "Board chat", hint: "Direct the company", icon: MessagesSquare, href: "/board-chat" },
     ],
   },
   {

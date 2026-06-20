@@ -15,6 +15,7 @@ import {
 import { api } from "@/lib/api";
 import type {
   ActivityEntry,
+  AdapterInfo,
   Agent,
   AgentDetail,
   Approval,
@@ -83,6 +84,18 @@ export function useAgent(id: string): UseQueryResult<AgentDetail> {
     queryKey: ["agent", id],
     queryFn: () => api.getAgent(id),
     refetchInterval: 6000,
+  });
+}
+
+export function useAdapters(): UseQueryResult<AdapterInfo[]> {
+  return useQuery({ queryKey: ["adapters"], queryFn: () => api.adapters(), staleTime: 60_000 });
+}
+
+export function useCreateAgent(companyId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Record<string, unknown>) => api.createAgent(companyId, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents", companyId] }),
   });
 }
 
