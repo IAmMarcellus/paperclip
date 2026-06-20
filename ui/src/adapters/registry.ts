@@ -12,6 +12,7 @@ import { openClawGatewayUIAdapter } from "./openclaw-gateway";
 import { hermesLocalUIAdapter } from "./hermes-local";
 import { processUIAdapter } from "./process";
 import { httpUIAdapter } from "./http";
+import { openSageUIAdapter } from "./opensage";
 import { loadDynamicParser, invalidateDynamicParser, setDynamicParserResultNotifier } from "./dynamic-loader";
 import { SchemaConfigFields, buildSchemaAdapterConfig } from "./schema-config-fields";
 
@@ -65,6 +66,7 @@ function registerBuiltInUIAdapters() {
     openClawGatewayUIAdapter,
     processUIAdapter,
     httpUIAdapter,
+    openSageUIAdapter,
   ]) {
     builtinTypes.add(adapter.type);
     builtinAdaptersByType.set(adapter.type, adapter);

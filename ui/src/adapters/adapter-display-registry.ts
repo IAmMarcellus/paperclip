@@ -128,6 +128,11 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     icon: Cpu,
     comingSoon: true,
   },
+  opensage: {
+    label: "OpenSage",
+    description: "Local OpenSage orchestrator (plans, remembers, delegates to OpenCode)",
+    icon: Bot,
+  },
 };
 
 // ---------------------------------------------------------------------------
