@@ -12,7 +12,12 @@ const KEYS = {
   companyId: "paperclip.companyId",
 } as const;
 
-export const DEFAULT_BASE_URL = "http://localhost:3100";
+// Build-time default server URL. Set EXPO_PUBLIC_API_BASE_URL in a (gitignored) .env.local to
+// point any build at a specific backend — e.g. this dev box over Tailscale
+// (http://<host>.<tailnet>.ts.net:3100) — without committing the setup-specific value. Falls back
+// to localhost for a vanilla checkout; the Connect screen can still override at runtime.
+export const DEFAULT_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL?.trim() || "http://localhost:3100";
 
 export interface ApiConfig {
   baseUrl: string;

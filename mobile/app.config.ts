@@ -7,6 +7,13 @@ import type { ExpoConfig } from "expo/config";
  * Android (and iOS < 26) fall back to expo-blur glass — same code, see
  * components/ui/GlassSurface.tsx.
  */
+
+// iOS App Transport Security blocks plaintext http:// to non-localhost hosts. When the backend is
+// reached over an http:// Tailscale MagicDNS name (tailnet traffic is already WireGuard-encrypted),
+// set EXPO_PUBLIC_ATS_INSECURE_DOMAIN to that domain (e.g. "taild2b25b.ts.net") in a gitignored
+// .env.local to add a scoped exception. Empty => no exception baked in (clean vanilla build).
+const atsInsecureDomain = process.env.EXPO_PUBLIC_ATS_INSECURE_DOMAIN?.trim();
+
 const config: ExpoConfig = {
   name: "Paperclip",
   slug: "paperclip-mobile",
@@ -18,6 +25,20 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: true,
     bundleIdentifier: "ai.paperclip.mobile",
+    ...(atsInsecureDomain
+      ? {
+          infoPlist: {
+            NSAppTransportSecurity: {
+              NSExceptionDomains: {
+                [atsInsecureDomain]: {
+                  NSIncludesSubdomains: true,
+                  NSExceptionAllowsInsecureHTTPLoads: true,
+                },
+              },
+            },
+          },
+        }
+      : {}),
   },
   android: {
     package: "ai.paperclip.mobile",
